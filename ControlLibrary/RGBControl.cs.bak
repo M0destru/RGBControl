@@ -1,0 +1,107 @@
+﻿using System;
+using System.Drawing;
+using System.Globalization;
+using System.Windows.Forms;
+
+namespace ControlLibrary
+{
+    public partial class RGBControl : UserControl
+    {
+        private Color color;
+
+        private EMode mode;
+
+        public event EventHandler ColorChanged;
+
+        public Color Color
+        {
+            get
+            {
+                return color;
+            }
+            set
+            {
+                color = value;
+                OnColorChanged();
+            }
+        }
+
+        public RGBControl()
+        {
+            InitializeComponent();
+            mode = EMode.Dec;
+            //color = Color.White;
+            /* заполнить текстбоксы текущими значениями цвета */
+            numTbColorRed.Text = color.R.ToString();
+            numTbColorGreen.Text = color.G.ToString();
+            numTbColorBlue.Text = color.B.ToString();
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+
+            Graphics g = CreateGraphics();
+            g.DrawRectangle(new Pen(color), 107, 8, 80, 75);
+            g.FillRectangle(new SolidBrush(color), 107, 8, 80, 75);
+
+        }
+
+        protected void OnColorChanged()
+        {
+            if (ColorChanged != null)
+                ColorChanged(this, new EventArgs());
+
+            if (numTbColorRed.TextLength == 0 || numTbColorGreen.TextLength == 0
+                || numTbColorBlue.TextLength == 0)
+                return;
+
+            int red = numTbColorRed.Mode == EMode.Dec ?
+                int.Parse(numTbColorRed.Text) : int.Parse(numTbColorRed.Text, NumberStyles.HexNumber);
+            int green = numTbColorGreen.Mode == EMode.Dec ?
+                int.Parse(numTbColorGreen.Text) : int.Parse(numTbColorGreen.Text, NumberStyles.HexNumber);
+            int blue = numTbColorBlue.Mode == EMode.Dec ?
+                int.Parse(numTbColorBlue.Text) : int.Parse(numTbColorBlue.Text, NumberStyles.HexNumber);
+
+            Color = Color.FromArgb(red, green, blue);
+
+            Invalidate(new Rectangle(107, 8, 80, 75));
+        }
+
+        private void numTbColorRed_TextChanged(object sender, EventArgs e)
+        {
+            OnColorChanged();
+        }
+
+        private void numTbColorGreen_TextChanged(object sender, EventArgs e)
+        {
+            OnColorChanged();
+        }
+
+        private void numTbColorBlue_TextChanged(object sender, EventArgs e)
+        {
+            OnColorChanged();
+        }
+
+        private void radioBtnDec_CheckedChanged(object sender, EventArgs e)
+        {
+            if (mode == EMode.Dec) return;
+
+            mode = EMode.Dec;
+            numTbColorRed.Mode = mode;
+            numTbColorGreen.Mode = mode;
+            numTbColorBlue.Mode = mode;
+        }
+
+        private void radioBtnHex_CheckedChanged(object sender, EventArgs e)
+        {
+            if (mode == EMode.Hex) return;
+
+            mode = EMode.Hex;
+            numTbColorRed.Mode = mode;
+            numTbColorGreen.Mode = mode;
+            numTbColorBlue.Mode = mode;
+        }
+    }
+
+}
